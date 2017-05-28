@@ -2,18 +2,17 @@
 import telnetlib
 import pygame
 import re
+import os
 
 from constants import *
+from parser import Parser
 
 connection = telnetlib.Telnet(HOST)
 
-import os
 os.popen('stty cols {}'.format(ttyW))
 rows, columns = os.popen('stty size', 'r').read().split()
 print(rows, columns)
 
-
-from parser import Parser
 parser = Parser()
 
 while True:

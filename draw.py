@@ -3,10 +3,10 @@ import pygame
 
 pygame.init()
 
-myimage = pygame.image.load('geoduck20x12.bmp')
+tileset = pygame.image.load(TILESET)
 SCREEN = pygame.display.set_mode((viewportWidth, viewportHeight), 0, 32)
-FONT = pygame.font.Font('fonts/DejaVuSansMono.ttf', H-3)
-FONTB = pygame.font.SysFont('fonts/DejaVuSansMono-Bold.ttf', H-3)
+font = pygame.font.Font(FONT, H-3)
+fontb = pygame.font.SysFont(FONTB, H-3)
 
 SCREEN.fill(defaultBG)
 pygame.display.update()
@@ -93,7 +93,7 @@ def draw_char(l, x, y, mode, attr):
     # if we found a tile, draw it
     if draw and not(sheetX == 0 and sheetY == 0):
         SCREEN.blit(
-            source=myimage,
+            source=tileset,
             dest=(x, y, W, H),
             area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
         )
@@ -101,7 +101,7 @@ def draw_char(l, x, y, mode, attr):
         # if mode == 'special' and l != ' ':
         #     print('missing a special character: ', l)
         #     pygame.draw.rect(SCREEN, RED, (x, y, W, H), 2)
-        font = FONT if attr['weight'] == 'bold' else FONT
-        SCREEN.blit(font.render(l, True, fgcolour), (x, y))
+        current_font = fontb if attr['weight'] == 'bold' else font
+        SCREEN.blit(current_font.render(l, True, fgcolour), (x, y))
     # if attr['weight'] == 'bold':
     #    pygame.draw.rect(SCREEN, (255,255,255), (x, y, W, H), 2)
