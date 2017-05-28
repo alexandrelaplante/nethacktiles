@@ -1,6 +1,6 @@
 HOST = 'nethack.alt.org'
 
-viewportWidth, viewportHeight = (1000, 750)
+viewportWidth, viewportHeight = (1300, 750)
 
 ttyW, ttyH = 120, 40
 
@@ -16,9 +16,11 @@ WHITE = (255, 255, 255)
 defaultBG = BLACK
 defaultFG = WHITE
 
-tileH, tileW = 20, 12  # tile size in sheet
+tileH, tileW = 25, 15  # tile size in sheet
+# tileH, tileW = 20, 20 # tile size in sheet
 W, H = tileW, tileH  # tile size
 
-TILESET = 'geoduck20x12.bmp'
+TILESET = 'geoduck25x15.bmp'
+# TILESET = 'default_tiles_20.png'
 FONT = 'fonts/DejaVuSansMono.ttf'
 FONTB = 'fonts/DejaVuSansMono-Bold.ttf'

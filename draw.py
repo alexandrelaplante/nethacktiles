@@ -1,20 +1,22 @@
-from constants import *
 import pygame
+from constants import *
+import tileset
+
 
 pygame.init()
 
-tileset = pygame.image.load(TILESET)
+tileset_image = pygame.image.load(TILESET)
 SCREEN = pygame.display.set_mode((viewportWidth, viewportHeight), 0, 32)
-font = pygame.font.Font(FONT, H-3)
-fontb = pygame.font.SysFont(FONTB, H-3)
+font = pygame.font.Font(FONT, H-4)
+fontb = pygame.font.SysFont(FONTB, H+7)
 
 SCREEN.fill(defaultBG)
 pygame.display.update()
 
-def draw_char(l, x, y, mode, attr):
+def draw_char(l, grid_x, grid_y, mode, attr):
     # there's no 0 coordinate in the ansi codes
-    x = (x - 1) * W
-    y = (y - 1) * H
+    x = (grid_x - 1) * W
+    y = (grid_y - 1) * H
 
     if attr['weight'] == 'frame':
         pygame.draw.rect(SCREEN, defaultFG, (x, y, W, H), 1)
@@ -30,20 +32,20 @@ def draw_char(l, x, y, mode, attr):
     if mode == 'special':
 
         letter_to_sheet_coordinates = {
-            '0': (23, 20),
-            'x': (30, 20),
-            'q': (31, 20),  # horizontal
-            'l': (32, 20),
-            'k': (33, 20),
-            'm': (34, 20),
-            'j': (35, 20),  # bottom right corner
-            'n': (36, 20),  # bottom right corner
-            'v': (37, 20),  # junction left up right
-            'w': (38, 20),  # junction left down right
-            'u': (39, 20),  # junction left down up
-            't': (0, 21),  # junction down up right
-            '~': (10, 21),  # floor
-            'a': (2, 21),
+            # '0': (23, 20),
+            'x': tileset.get_tile('wall', 0),
+            'q': tileset.get_tile('wall', 1),  # horizontal
+            'l': tileset.get_tile('wall', 2),
+            'k': tileset.get_tile('wall', 3),
+            'm': tileset.get_tile('wall', 4),
+            'j': tileset.get_tile('wall', 5),  # bottom right corner
+            'n': tileset.get_tile('wall', 6),  # bottom right corner
+            'v': tileset.get_tile('wall', 7),  # junction left up right
+            'w': tileset.get_tile('wall', 8),  # junction left down right
+            'u': tileset.get_tile('wall', 9),  # junction left down up
+            't': tileset.get_tile('wall', 10),  # junction down up right
+            '~': tileset.get_tile('floor of a room'),  # floor
+            'a': tileset.get_tile('open door'),
         }
 
         if l in letter_to_sheet_coordinates:
@@ -51,49 +53,65 @@ def draw_char(l, x, y, mode, attr):
 
     # ASCII
     if mode == 'normal':
-        if l == '+' and fgcolour == YELLOW:  # door (yellow)
-            sheetX, sheetY = 4, 21
-        elif l == '#':
-            sheetX, sheetY = 9, 21
+        if l == '+' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('closed door')
+        elif l == '#' and attr['weight'] == 'bold':
+            sheetX, sheetY = tileset.get_tile('lit corridor')
+        elif l == '#' and attr['weight'] == 'normal':
+            sheetX, sheetY = tileset.get_tile('corridor')
         elif l == '<': # and fgcolour == YELLOW:
-            sheetX, sheetY = 11, 21
+            sheetX, sheetY = tileset.get_tile('staircase up')
         elif l == '>': # and fgcolour == YELLOW:
-            sheetX, sheetY = 12, 21
-        elif l == '{' and fgcolour == BLUE:  # fountain
-            sheetX, sheetY = 19, 21
-        elif l == '}' and fgcolour == BLUE:  # water
-            sheetX, sheetY = 20, 21
-        elif l == '}' and fgcolour == RED:  # lava
-            sheetX, sheetY = 22, 21
-        elif l == '.' and fgcolour == defaultFG:
-            sheetX, sheetY = 10, 21
+            sheetX, sheetY = tileset.get_tile('staircase down')
+        elif l == '{' and fgcolour == BLUE:
+            sheetX, sheetY = tileset.get_tile('fountain')
+        elif l == '}' and fgcolour == BLUE:
+            sheetX, sheetY = tileset.get_tile('water')
+        elif l == '}' and fgcolour == RED:
+            sheetX, sheetY = tileset.get_tile('molten lava')
+        elif l == '.' and attr['weight'] == 'bold':
+            sheetX, sheetY = tileset.get_tile('dark part of a room', 1)
+        elif l == '.' and attr['weight'] == 'normal':
+            sheetX, sheetY = tileset.get_tile('floor of a room')
         # can't tell if it's a wall or a dash.
-        elif l == '-' and fgcolour == defaultFG:  # a wall
-            sheetX, sheetY = 31, 20
-        elif l == '|' and fgcolour == defaultFG:  # a wall
-            sheetX, sheetY = 30, 20
-        elif l == '$' and fgcolour == YELLOW:  # a money (yellow)
-            sheetX, sheetY = 26, 19
-        elif l == '?' and fgcolour == defaultFG:  # a money (yellow)
-            sheetX, sheetY = 26, 17
+        elif l == '-' and fgcolour == defaultFG:
+            sheetX, sheetY = tileset.get_tile('wall', 1)
+        elif l == '|' and fgcolour == defaultFG:
+            sheetX, sheetY = tileset.get_tile('wall')
+        elif l == '$' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('gold piece')
+        elif l == '?' and fgcolour == defaultFG:
+            sheetX, sheetY = tileset.get_tile('READ ME')  # scroll
         # can't tell if they're bolders or numbers
         # elif l == '0':
-        #     sheetX, sheetY = 23, 20
-        elif l == '-' and fgcolour == YELLOW:  # a door
-            sheetX, sheetY = 2, 21
-        elif l == '|' and fgcolour == YELLOW:  # a door
-            sheetX, sheetY = 3, 21
+        #     sheetX, sheetY = tileset.get_tile('boulder')
+        elif l == '-' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('open door')
+        elif l == '|' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('open door', 1)
+        elif l == 'l' and fgcolour == GREEN:
+            sheetX, sheetY = tileset.get_tile('leprechaun')
+        elif l == 'd' and attr['weight'] == 'bold':
+            sheetX, sheetY = tileset.get_tile('dog')
+        elif l == 'f' and attr['weight'] == 'bold':
+            sheetX, sheetY = tileset.get_tile('housecat')
+        elif l == '_':
+            sheetX, sheetY = tileset.get_tile('altar')
+        elif l == '%':
+            sheetX, sheetY = tileset.get_tile('corpse')
         elif l == '@' and attr['weight'] == 'bold':  # our dude
-            sheetX, sheetY = 15, 8
+            sheetX, sheetY = tileset.get_tile('archeologist')
 
-    draw = True
-    if y == 0:
-        draw = False  # just text on the first line
+    draw = False
+    if 1 < grid_y < 23:
+        # just text on the first line
+        # just text on the last two lines
+        draw = True
 
     # if we found a tile, draw it
     if draw and not(sheetX == 0 and sheetY == 0):
         SCREEN.blit(
-            source=tileset,
+            source=tileset_image,
             dest=(x, y, W, H),
             area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
         )
@@ -101,7 +119,18 @@ def draw_char(l, x, y, mode, attr):
         # if mode == 'special' and l != ' ':
         #     print('missing a special character: ', l)
         #     pygame.draw.rect(SCREEN, RED, (x, y, W, H), 2)
+        if draw and l != ' ' and False:  # show background behind letters
+            sheetX, sheetY = tileset.get_tile('empty')
+            SCREEN.blit(
+                source=tileset_image,
+                dest=(x, y, W, H),
+                area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
+            )
         current_font = fontb if attr['weight'] == 'bold' else font
-        SCREEN.blit(current_font.render(l, True, fgcolour), (x, y))
+        SCREEN.blit(
+            source=current_font.render(l, True, fgcolour),
+            dest=(x, y, W, H),
+            # special_flags=pygame.BLEND_ADD,
+        )
     # if attr['weight'] == 'bold':
     #    pygame.draw.rect(SCREEN, (255,255,255), (x, y, W, H), 2)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from constants import *
-from draw import draw_char
+from grid import Grid
 
 defaultATTR = {
     'weight': 'normal',
@@ -16,6 +16,7 @@ class Parser(object):
     x, y = 1, 1  # there is no 0, 0
     mode = None
     attr = None
+    grid = Grid()
 
     def __init__(self):
         self.mode = 'normal'
@@ -33,11 +34,11 @@ class Parser(object):
                 self.read = self.read[1:]
 
             else:  # just a letter
-                draw_char(self.read[0], self.x, self.y, self.mode, self.attr)
+                self.grid.set_cell(self.read[0], self.x, self.y, self.mode, self.attr)
                 self.x += 1
                 self.read = self.read[1:]
 
-        draw_char(' ', self.x, self.y, self.mode, {'weight': 'frame'})
+        self.grid.set_cell(' ', self.x, self.y, self.mode, {'weight': 'frame'})
 
     def parse_special(self):
         """
@@ -109,10 +110,8 @@ class Parser(object):
         self.y = int(match.group(1))
 
     def clear_screen_and_home_cursor(self, match):
-        from draw import SCREEN
-        SCREEN.fill(defaultBG)
+        self.grid.clear()
         self.x, self.y = 1, 1
-
 
     def move_to_home(self, match):
         self.x, self.y = 1, 1
@@ -122,7 +121,7 @@ class Parser(object):
         a, b, c, d = match.group(0), match.group(1), match.group(2), match.group(3)
         for i in range(a, c + 1):
             for j in range(b, d + 1):
-                draw_char(' ', i, self.y, self.mode, defaultATTR)
+                self.grid.set_cell(' ', i, self.y, self.mode, defaultATTR)
 
     def clear_line(self, match):
         # Esc[K   Clear line from cursor right    EL0
@@ -130,7 +129,7 @@ class Parser(object):
         # Esc[1K  Clear line from cursor left EL1
         # Esc[2K  Clear entire line   EL2
         for i in range(self.x, ttyW):
-            draw_char(' ', i, self.y, self.mode, defaultATTR)
+            self.grid.set_cell(' ', i, self.y, self.mode, defaultATTR)
 
     def set_united_states_g0_characters(self, match):
         # Set United States G0 character set
