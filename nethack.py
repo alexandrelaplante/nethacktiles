@@ -24,8 +24,8 @@ HOST = 'nethack.alt.org'
 viewportWidth, viewportHeight = (1000, 1000)
 
 SCREEN = pygame.display.set_mode((viewportWidth,viewportHeight), 0, 32)
-FONT = pygame.font.Font('fonts/DejaVuSansMono.ttf', H-1)
-FONTB = pygame.font.SysFont('fonts/DejaVuSansMono-Bold.ttf', H-1)
+FONT = pygame.font.Font('fonts/DejaVuSansMono.ttf', H-3)
+FONTB = pygame.font.SysFont('fonts/DejaVuSansMono-Bold.ttf', H-3)
 
 defaultBG = BLACK
 defaultFG = WHITE
