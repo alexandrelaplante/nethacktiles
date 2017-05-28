@@ -13,14 +13,15 @@ fontb = pygame.font.SysFont(FONTB, H+7)
 SCREEN.fill(defaultBG)
 pygame.display.update()
 
-def draw_char(l, grid_x, grid_y, mode, attr):
+def draw_cell(cell, grid_x, grid_y):
+    l = cell.letter
+    mode = cell.mode
+    attr = cell.attr
+    frame = cell.frame
+
     # there's no 0 coordinate in the ansi codes
     x = (grid_x - 1) * W
     y = (grid_y - 1) * H
-
-    if attr['weight'] == 'frame':
-        pygame.draw.rect(SCREEN, defaultFG, (x, y, W, H), 1)
-        return
 
     fgcolour = attr['fgcolour']
     bgcolour = attr['bgcolour']
@@ -132,5 +133,9 @@ def draw_char(l, grid_x, grid_y, mode, attr):
             dest=(x, y, W, H),
             # special_flags=pygame.BLEND_ADD,
         )
+
+    if frame:
+        pygame.draw.rect(SCREEN, defaultFG, (x, y, W, H), 1)
+
     # if attr['weight'] == 'bold':
     #    pygame.draw.rect(SCREEN, (255,255,255), (x, y, W, H), 2)

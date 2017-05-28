@@ -3,14 +3,6 @@ import re
 from constants import *
 from grid import Grid
 
-defaultATTR = {
-    'weight': 'normal',
-    'underlined': False,
-    'blinking': False,
-    'fgcolour': defaultFG,
-    'bgcolour': defaultBG,
-}
-
 class Parser(object):
     read = ''
     x, y = 1, 1  # there is no 0, 0
@@ -38,7 +30,7 @@ class Parser(object):
                 self.x += 1
                 self.read = self.read[1:]
 
-        self.grid.set_cell(' ', self.x, self.y, self.mode, {'weight': 'frame'})
+        self.grid.set_frame(self.x, self.y)
 
     def parse_special(self):
         """

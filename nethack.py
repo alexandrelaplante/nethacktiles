@@ -28,4 +28,5 @@ while True:
     
     if parser.read:
         parser.parse()
+        parser.grid.draw()
         pygame.display.update()

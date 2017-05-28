@@ -24,3 +24,11 @@ TILESET = 'geoduck25x15.bmp'
 # TILESET = 'default_tiles_20.png'
 FONT = 'fonts/DejaVuSansMono.ttf'
 FONTB = 'fonts/DejaVuSansMono-Bold.ttf'
+
+defaultATTR = {
+    'weight': 'normal',
+    'underlined': False,
+    'blinking': False,
+    'fgcolour': defaultFG,
+    'bgcolour': defaultBG,
+}
