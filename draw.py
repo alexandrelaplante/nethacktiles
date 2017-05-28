@@ -34,17 +34,17 @@ def draw_cell(cell, grid_x, grid_y):
 
         letter_to_sheet_coordinates = {
             # '0': (23, 20),
-            'x': tileset.get_tile('wall', 0),
+            'x': tileset.get_tile('wall', 0),  # vertical
             'q': tileset.get_tile('wall', 1),  # horizontal
-            'l': tileset.get_tile('wall', 2),
-            'k': tileset.get_tile('wall', 3),
-            'm': tileset.get_tile('wall', 4),
+            'l': tileset.get_tile('wall', 2),  # top left corner
+            'k': tileset.get_tile('wall', 3),  # top right corner
+            'm': tileset.get_tile('wall', 4),  # bottom left corner
             'j': tileset.get_tile('wall', 5),  # bottom right corner
-            'n': tileset.get_tile('wall', 6),  # bottom right corner
-            'v': tileset.get_tile('wall', 7),  # junction left up right
-            'w': tileset.get_tile('wall', 8),  # junction left down right
-            'u': tileset.get_tile('wall', 9),  # junction left down up
-            't': tileset.get_tile('wall', 10),  # junction down up right
+            'n': tileset.get_tile('wall', 6),  # total junction
+            'v': tileset.get_tile('wall', 7),  # down junction
+            'w': tileset.get_tile('wall', 8),  # up junction
+            'u': tileset.get_tile('wall', 9),  # right junction
+            't': tileset.get_tile('wall', 10),  # left junction
             '~': tileset.get_tile('floor of a room'),  # floor
             'a': tileset.get_tile('open door'),
         }
@@ -84,14 +84,30 @@ def draw_cell(cell, grid_x, grid_y):
         elif l == '?' and fgcolour == defaultFG:
             sheetX, sheetY = tileset.get_tile('READ ME')  # scroll
         # can't tell if they're bolders or numbers
-        # elif l == '0':
-        #     sheetX, sheetY = tileset.get_tile('boulder')
+        elif l == '0':
+            sheetX, sheetY = tileset.get_tile('boulder')
         elif l == '-' and fgcolour == YELLOW:
             sheetX, sheetY = tileset.get_tile('open door')
         elif l == '|' and fgcolour == YELLOW:
             sheetX, sheetY = tileset.get_tile('open door', 1)
         elif l == 'l' and fgcolour == GREEN:
             sheetX, sheetY = tileset.get_tile('leprechaun')
+        elif l == 'i' and fgcolour == GREEN:
+            sheetX, sheetY = tileset.get_tile('homunculus')
+        elif l == 'h' and fgcolour == GREEN:
+            sheetX, sheetY = tileset.get_tile('hobbit')
+        elif l == 'h' and fgcolour == RED:
+            sheetX, sheetY = tileset.get_tile('fox')
+        elif l == 'G' and fgcolour == GREEN:
+            sheetX, sheetY = tileset.get_tile('gnome')
+        elif l == 'N' and fgcolour == GREEN:
+            sheetX, sheetY = tileset.get_tile('guardian naga')
+        elif l == 'D' and fgcolour == RED:
+            sheetX, sheetY = tileset.get_tile('red dragon')
+        elif l == 'D' and fgcolour == BLACK:
+            sheetX, sheetY = tileset.get_tile('black dragon')
+        elif l == 'G' and fgcolour == BLUE:
+            sheetX, sheetY = tileset.get_tile('gnome lord')
         elif l == 'd' and attr['weight'] == 'bold':
             sheetX, sheetY = tileset.get_tile('dog')
         elif l == 'f' and attr['weight'] == 'bold':
@@ -108,6 +124,8 @@ def draw_cell(cell, grid_x, grid_y):
         # just text on the first line
         # just text on the last two lines
         draw = True
+
+    draw = cell.draw and draw
 
     # if we found a tile, draw it
     if draw and not(sheetX == 0 and sheetY == 0):
