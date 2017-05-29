@@ -105,7 +105,12 @@ class Grid(object):
         cell._dirty = True
 
     def clear(self):
+        # for performance we just empty the screen and say nothing is dirty
+        from draw import SCREEN
+        SCREEN.fill(defaultBG)
         self.__init__()
+        for cell, _, _ in self.cells:
+            cell._dirty = False
 
     @property
     def cells(self):
