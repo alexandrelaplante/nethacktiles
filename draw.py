@@ -98,7 +98,7 @@ def draw_cell(cell, grid_x, grid_y):
             sheetX, sheetY = tileset.get_tile('hobbit')
         elif l == 'h' and fgcolour == RED:
             sheetX, sheetY = tileset.get_tile('fox')
-        elif l == 'G' and fgcolour == GREEN:
+        elif l == 'G' and fgcolour == YELLOW:
             sheetX, sheetY = tileset.get_tile('gnome')
         elif l == 'N' and fgcolour == GREEN:
             sheetX, sheetY = tileset.get_tile('guardian naga')
@@ -108,6 +108,18 @@ def draw_cell(cell, grid_x, grid_y):
             sheetX, sheetY = tileset.get_tile('black dragon')
         elif l == 'G' and fgcolour == BLUE:
             sheetX, sheetY = tileset.get_tile('gnome lord')
+        elif l == 'e' and fgcolour == BLUE:
+            sheetX, sheetY = tileset.get_tile('floating eye')
+        elif l == 'x' and fgcolour == MAGENTA:
+            sheetX, sheetY = tileset.get_tile('grid bug')
+        elif l == 'Y' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('ape')
+        elif l == 'N' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('golden naga')
+        elif l == 'u' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('pony')
+        elif l == ':' and fgcolour == YELLOW:
+            sheetX, sheetY = tileset.get_tile('newt')
         elif l == 'd' and attr['weight'] == 'bold':
             sheetX, sheetY = tileset.get_tile('dog')
         elif l == 'f' and attr['weight'] == 'bold':

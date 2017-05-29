@@ -12,7 +12,7 @@ class Cell(object):
     def pp_not_a_boulder(self, neighbours):
         if self.letter == '0':
             neighbour_letters = set(n.letter for n in neighbours.values() if n.letter)
-            board_letters = set(('#', '.', '-', '|'))
+            board_letters = set(('#', '.'))
             intersection = neighbour_letters & board_letters
             not_near_the_board = not(intersection)
 
@@ -153,5 +153,7 @@ class Grid(object):
         for cell, x, y in self.cells:
             if cell._dirty:
                 draw_cell(cell, x, y)
-                cell.frame = False
                 cell._dirty = False
+                if cell.frame:
+                    cell.frame = False
+                    cell._dirty = True
