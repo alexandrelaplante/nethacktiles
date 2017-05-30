@@ -13,7 +13,7 @@ class Cell(object):
 
     def is_on_the_board(self, neighbours):
         neighbour_letters = set(n.letter for n in neighbours.values() if n.letter)
-        board_letters = set(('#', '.'))
+        board_letters = set(('#', '.', '~'))
         intersection = neighbour_letters & board_letters
         return bool(intersection)
 
