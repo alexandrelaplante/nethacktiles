@@ -38,6 +38,7 @@ end_sequences = (
     re.escape('--More--'),
     re.escape('(end)'),
     re.escape('Watch which game?'),
+    re.escape(' => '),
     r'\(\d of \d\)',
 )
 
