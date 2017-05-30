@@ -273,6 +273,12 @@ class BlackDragon(Symbol):
     fgcolour = BLACK
 
 
+class YellowDragon(Symbol):
+    tile = 'yellow dragon'
+    letter = 'D'
+    fgcolour = YELLOW
+
+
 class FloatingEye(Symbol):
     tile = 'floating eye'
     letter = 'e'
@@ -297,10 +303,28 @@ class GoldenNaga(Symbol):
     fgcolour = YELLOW
 
 
+class RedNaga(Symbol):
+    tile = 'red naga'
+    letter = 'N'
+    fgcolour = RED
+
+
 class Pony(Symbol):
     tile = 'pony'
     letter = 'u'
     fgcolour = YELLOW
+
+
+class KeystoneKop(Symbol):
+    tile = 'Keystone Kop'
+    letter = 'K'
+    fgcolour = MAGENTA
+
+
+class Lichen(Symbol):
+    tile = 'lichen'
+    letter = 'L'
+    fgcolour = GREEN
 
 
 class Newt(Symbol):
@@ -313,6 +337,18 @@ class Gecko(Symbol):
     tile = 'gecko'
     letter = ':'
     fgcolour = GREEN
+
+
+class Bat(Symbol):
+    tile = 'bat'
+    letter = 'B'
+    fgcolour = YELLOW
+
+
+class GiantRat(Symbol):
+    tile = 'giant rat'
+    letter = 'r'
+    fgcolour = YELLOW
 
 
 class GiantBat(Symbol):
@@ -391,6 +427,12 @@ class Rothe(Symbol):
     tile = 'rothe'
     letter = 'q'
     fgcolour = YELLOW
+
+
+class Gremlin(Symbol):
+    tile = 'gremlin'
+    letter = 'g'
+    fgcolour = GREEN
 
 
 symbols = [c for c in Symbol.__subclasses__()]

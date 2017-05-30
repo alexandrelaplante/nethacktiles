@@ -32,3 +32,14 @@ defaultATTR = {
     'fgcolour': defaultFG,
     'bgcolour': defaultBG,
 }
+
+import re
+end_sequences = (
+    re.escape('--More--'),
+    re.escape('(end)'),
+    re.escape('Watch which game?'),
+    r'\(\d of \d\)',
+)
+
+regex = '({})'.format('|'.join(end_sequences))
+end_sequence_re = re.compile(regex)

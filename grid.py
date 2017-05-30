@@ -1,3 +1,4 @@
+import re
 from constants import *
 from draw import draw_cell
 
@@ -7,27 +8,17 @@ class Cell(object):
     mode = 'normal'
     frame = False
     draw = True
+    neighbours = None
     _dirty = True
 
-    def pp_not_a_boulder(self, neighbours):
-        if self.letter == '0':
-            neighbour_letters = set(n.letter for n in neighbours.values() if n.letter)
-            board_letters = set(('#', '.'))
-            intersection = neighbour_letters & board_letters
-            not_near_the_board = not(intersection)
+    def is_on_the_board(self, neighbours):
+        neighbour_letters = set(n.letter for n in neighbours.values() if n.letter)
+        board_letters = set(('#', '.'))
+        intersection = neighbour_letters & board_letters
+        return bool(intersection)
 
-            if not_near_the_board:
-                self.draw = False
-
-    def pp_not_a_wall(self, neighbours):
-        not_a_wall = (
-            self.letter == '-'
-            and self.attr['fgcolour'] == defaultFG
-            and neighbours['left'].letter == ' '
-            and neighbours['right'].letter == ' '
-        )
-        if not_a_wall:
-            self.draw = False
+    def pp_save_neighbours(self, neighbours):
+        self.neighbours = neighbours
 
     def pp_top_left_corner(self, neighbours):
         top_left_corner = (
@@ -85,6 +76,8 @@ class FakeCell(object):
 
 class Grid(object):
     _cells = None
+    after_x = None
+    after_y = None
 
     def __init__(self):
         self._cells = [
@@ -97,12 +90,19 @@ class Grid(object):
         cell.letter = letter
         cell.mode = mode
         cell.attr = attr.copy()
+        cell.draw = True
         cell._dirty = True
 
     def set_frame(self, x, y):
         cell = self._cells[y][x]
         cell.frame = True
         cell._dirty = True
+
+    @property
+    def cells(self):
+        for y, row in enumerate(self._cells):
+            for x, cell in enumerate(row):
+                yield (cell, x, y)
 
     def clear(self):
         # for performance we just empty the screen and say nothing is dirty
@@ -111,12 +111,6 @@ class Grid(object):
         self.__init__()
         for cell, _, _ in self.cells:
             cell._dirty = False
-
-    @property
-    def cells(self):
-        for y, row in enumerate(self._cells):
-            for x, cell in enumerate(row):
-                yield (cell, x, y)
 
     def get_neighbours(self, x, y):
         coords = (
@@ -142,6 +136,7 @@ class Grid(object):
         return neighbours
 
     def post_process(self):
+        # Post process individual cells
         for cell, x, y in self.cells:
             if not cell._dirty:
                 continue
@@ -153,6 +148,17 @@ class Grid(object):
             for f in post_process_functions:
                 getattr(cell, f)(neighbours)
 
+        # Search for boxes of text to not draw tiles inside
+        for y, row in enumerate(self._cells):
+            line = ''.join(cell.letter if cell.letter else ' ' for cell in row)
+            match = re.search(end_sequence_re, line)
+            if match:
+                start = match.start() - 2
+                self.after_x = start
+                self.after_y = y
+                for cell, cx, cy in self.cells:
+                    if cy <= y and cx >= start:
+                        cell.draw = False
 
     def draw(self):
         for cell, x, y in self.cells:
@@ -162,3 +168,16 @@ class Grid(object):
                 if cell.frame:
                     cell.frame = False
                     cell._dirty = True
+
+    def after_draw(self):
+        # Draw a border around text boxes
+        import pygame
+        from draw import SCREEN
+        if self.after_y and self.after_y > 1:
+            x = (self.after_x + 1) * W
+            y = (self.after_y - 1) * H
+            max_x = max((x for cell, x, y in self.cells if cell.letter and cell.letter != ' '))
+            max_x = (max_x) * W
+            pygame.draw.rect(SCREEN, defaultFG, (x, 0, max_x-x, y+H), 1)
+        self.after_x = None
+        self.after_y = None
