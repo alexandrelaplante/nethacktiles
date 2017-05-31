@@ -2,6 +2,7 @@ import re
 from constants import *
 from draw import draw_cell
 
+
 class Cell(object):
     letter = None
     attr = defaultATTR.copy()
@@ -11,62 +12,120 @@ class Cell(object):
     neighbours = None
     _dirty = True
 
-    def is_on_the_board(self, neighbours):
-        neighbour_letters = set(n.letter for n in neighbours.values() if n.letter)
-        board_letters = set(('#', '.', '~'))
-        intersection = neighbour_letters & board_letters
-        return bool(intersection)
-
-    def pp_save_neighbours(self, neighbours):
-        self.neighbours = neighbours
+    @property
+    def is_wall(self):
+        return self.attr['fgcolour'] == defaultFG and self.letter and (
+            self.mode == 'special' and self.letter in 'xqlkmjnvwut'
+            or self.mode == 'normal' and self.letter in '-|'
+        )
 
     def pp_top_left_corner(self, neighbours):
-        top_left_corner = (
-           self.letter == '-'
-           and self.attr['fgcolour'] == defaultFG
-           and neighbours['up'].letter != '|'
-           and neighbours['left'].letter != '-'
-           and neighbours['down'].letter == '|'
+        is_corner = (
+           self.is_wall
+           and not neighbours['up'].is_wall
+           and not neighbours['left'].is_wall
+           and neighbours['down'].is_wall
+           and neighbours['right'].is_wall
         )
-        if top_left_corner:
+        if is_corner:
             self.mode = 'special'
             self.letter = 'l'
 
     def pp_top_right_corner(self, neighbours):
-        top_left_corner = (
-           self.letter == '-'
-           and self.attr['fgcolour'] == defaultFG
-           and neighbours['up'].letter != '|'
-           and neighbours['right'].letter != '-'
-           and neighbours['down'].letter == '|'
+        is_corner = (
+           self.is_wall
+           and not neighbours['up'].is_wall
+           and neighbours['left'].is_wall
+           and neighbours['down'].is_wall
+           and not neighbours['right'].is_wall
         )
-        if top_left_corner:
+        if is_corner:
             self.mode = 'special'
             self.letter = 'k'
 
     def pp_bottom_right_corner(self, neighbours):
-        top_left_corner = (
-           self.letter == '-'
-           and self.attr['fgcolour'] == defaultFG
-           and neighbours['up'].letter == '|'
-           and neighbours['right'].letter != '-'
-           and neighbours['down'].letter != '|'
+        is_corner = (
+           self.is_wall
+           and neighbours['up'].is_wall
+           and neighbours['left'].is_wall
+           and not neighbours['down'].is_wall
+           and not neighbours['right'].is_wall
         )
-        if top_left_corner:
+        if is_corner:
             self.mode = 'special'
             self.letter = 'j'
 
     def pp_bottom_left_corner(self, neighbours):
-        top_left_corner = (
-           self.letter == '-'
-           and self.attr['fgcolour'] == defaultFG
-           and neighbours['up'].letter == '|'
-           and neighbours['left'].letter != '-'
-           and neighbours['down'].letter != '|'
+        is_corner = (
+           self.is_wall
+           and neighbours['up'].is_wall
+           and not neighbours['left'].is_wall
+           and not neighbours['down'].is_wall
+           and neighbours['right'].is_wall
         )
-        if top_left_corner:
+        if is_corner:
             self.mode = 'special'
             self.letter = 'm'
+
+    def pp_top_junction(self, neighbours):
+        is_junction = (
+           self.is_wall
+           and not neighbours['up'].is_wall
+           and neighbours['left'].is_wall
+           and neighbours['down'].is_wall
+           and neighbours['right'].is_wall
+        )
+        if is_junction:
+            self.mode = 'special'
+            self.letter = 'w'
+
+    def pp_right_junction(self, neighbours):
+        is_junction = (
+           self.is_wall
+           and neighbours['up'].is_wall
+           and neighbours['left'].is_wall
+           and neighbours['down'].is_wall
+           and not neighbours['right'].is_wall
+        )
+        if is_junction:
+            self.mode = 'special'
+            self.letter = 'u'
+
+    def pp_bottom_junction(self, neighbours):
+        is_junction = (
+           self.is_wall
+           and neighbours['up'].is_wall
+           and neighbours['left'].is_wall
+           and not neighbours['down'].is_wall
+           and neighbours['right'].is_wall
+        )
+        if is_junction:
+            self.mode = 'special'
+            self.letter = 'v'
+
+    def pp_left_junction(self, neighbours):
+        is_junction = (
+           self.is_wall
+           and neighbours['up'].is_wall
+           and not neighbours['left'].is_wall
+           and neighbours['down'].is_wall
+           and neighbours['right'].is_wall
+        )
+        if is_junction:
+            self.mode = 'special'
+            self.letter = 't'
+
+    def pp_total_junction(self, neighbours):
+        is_junction = (
+           self.is_wall
+           and neighbours['up'].is_wall
+           and neighbours['left'].is_wall
+           and neighbours['down'].is_wall
+           and neighbours['right'].is_wall
+        )
+        if is_junction:
+            self.mode = 'special'
+            self.letter = 'n'
 
 
 class FakeCell(object):
@@ -157,8 +216,11 @@ class Grid(object):
                 self.after_x = start
                 self.after_y = y
                 for cell, cx, cy in self.cells:
-                    if cy <= y and cx >= start:
+                    if cy <= y and cx >= start and cell.draw:
+                        # don't draw any tiles, this is text
                         cell.draw = False
+                        # and undraw it if it was already drawn
+                        cell._dirty = True
 
     def draw(self):
         for cell, x, y in self.cells:

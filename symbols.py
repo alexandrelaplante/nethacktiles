@@ -321,6 +321,12 @@ class KeystoneKop(Symbol):
     fgcolour = MAGENTA
 
 
+class Zruty(Symbol):
+    tile = 'zruty'
+    letter = 'z'
+    fgcolour = YELLOW
+
+
 class Lichen(Symbol):
     tile = 'lichen'
     letter = 'L'

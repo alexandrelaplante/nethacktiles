@@ -74,7 +74,7 @@ def draw_cell(cell, grid_x, grid_y):
         # if mode == 'special' and l != ' ':
         #     print('missing a special character: ', l)
         #     pygame.draw.rect(SCREEN, RED, (x, y, W, H), 2)
-        if draw and l != ' ' and cell.is_on_the_board(cell.neighbours):  # show background behind letters
+        if draw and l != ' ':  # show background behind letters
             sheetX, sheetY = tileset.get_tile('empty')
             SCREEN.blit(
                 source=tileset_image,
