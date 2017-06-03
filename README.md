@@ -5,7 +5,11 @@ Play on nethack.alt.org with graphical tiles
 ![](screenshots/screenshot2.png)
 ![](screenshots/screenshot3.png)
 
-## Instructions
+### Installation
+
+    pip install pygame
+    git clone https://github.com/alexandrelaplante/nethacktiles.git
+    cd nethacktiles/
 
 ### Running
 
