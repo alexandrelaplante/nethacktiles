@@ -138,11 +138,14 @@ class Grid(object):
     after_x = None
     after_y = None
 
-    def __init__(self):
-        self._cells = [
+    def initial_cells(self):
+        return [
             [Cell() for x in range(ttyW*2)]
             for y in range(ttyH*2)
         ]
+
+    def __init__(self):
+        self._cells = self.initial_cells()
 
     def set_cell(self, letter, x, y, mode, attr):
         cell = self._cells[y][x]
@@ -194,10 +197,29 @@ class Grid(object):
 
         return neighbours
 
-    def post_process(self):
+    def find_text_boxes(self):
+        # Search for boxes of text to not draw tiles inside
+        for y, row in enumerate(self._cells):
+            line = ''.join(cell.letter if cell.letter else ' ' for cell in row)
+            match = re.search(end_sequence_re, line)
+            if match:
+                x = match.start()
+                self.after_x = x - 2
+                self.after_y = y
+                self.no_tiles_in_area(x, y + 1)
+
+    def no_tiles_in_area(self, x, y):
+        for row in self._cells[:y]:
+            for cell in row[x:]:
+                # don't draw any tiles, this is text
+                cell.draw = False
+                # and undraw it if it was already drawn
+                cell._dirty = True
+
+    def process_individual_cells(self):
         # Post process individual cells
         for cell, x, y in self.cells:
-            if not cell._dirty:
+            if not cell._dirty or not cell.is_wall:
                 continue
             neighbours = self.get_neighbours(x, y)
             post_process_functions = (
@@ -207,20 +229,10 @@ class Grid(object):
             for f in post_process_functions:
                 getattr(cell, f)(neighbours)
 
-        # Search for boxes of text to not draw tiles inside
-        for y, row in enumerate(self._cells):
-            line = ''.join(cell.letter if cell.letter else ' ' for cell in row)
-            match = re.search(end_sequence_re, line)
-            if match:
-                start = match.start() - 2
-                self.after_x = start
-                self.after_y = y
-                for cell, cx, cy in self.cells:
-                    if cy <= y and cx >= start and cell.draw:
-                        # don't draw any tiles, this is text
-                        cell.draw = False
-                        # and undraw it if it was already drawn
-                        cell._dirty = True
+    def post_process(self):
+        pass
+        self.process_individual_cells()
+        self.find_text_boxes()
 
     def draw(self):
         for cell, x, y in self.cells:

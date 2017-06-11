@@ -2,7 +2,7 @@ HOST = 'nethack.alt.org'
 
 viewportWidth, viewportHeight = (1920, 1080)
 
-ttyW, ttyH = 200, 60
+ttyW, ttyH = 200, 40
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)

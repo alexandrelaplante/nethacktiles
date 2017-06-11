@@ -9,13 +9,14 @@ class Parser(object):
     mode = None
     attr = None
     grid = Grid()
+    compiled_regexes = {}
 
     def __init__(self):
         self.mode = 'normal'
         self.attr = defaultATTR.copy()
 
     def parse(self):
-        print(self.read)
+        # print(self.read)
         while self.read:
             if self.read[0] in ('','', '\r', '\n'):
 
@@ -42,24 +43,27 @@ class Parser(object):
             ('\r', '_return'),
             ('\n', 'new_line'),
             ('', 'backspace'),
-            (r'\[(\d*)(;\d+)?(;\d+)?m', 'set_attributes'),
-            (r'\[(\d+);(\d+)[Hf]', 'move_arbitrary_position'),
-            (r'\[(\d*)A', 'move_up'),
-            (r'\[(\d*)B', 'move_down'),
-            (r'\[(\d*)C', 'move_forwards'),
-            (r'\[(\d*)D', 'move_left'),
-            (r'\[(\d+)d', 'change_line'),
-            (r'\[2J', 'clear_screen_and_home_cursor'),
-            (r'\[;?H', 'move_to_home'),
-            (r'\[(\d+);(\d+);(\d+);(\d+)z', 'erase_rectangular_area'),
-            (r'\[K', 'clear_line'),
-            (r'\(B', 'set_united_states_g0_characters'),
-            (r'\(0', 'set_g0_special_characters'),
-            (r'[^a-zA-Z=>]*[a-zA-Z=>]', 'unrecognized_escape_sequence'),
+            (r'^\[(\d*)(;\d+)?(;\d+)?m', 'set_attributes'),
+            (r'^\[(\d+);(\d+)[Hf]', 'move_arbitrary_position'),
+            (r'^\[(\d*)A', 'move_up'),
+            (r'^\[(\d*)B', 'move_down'),
+            (r'^\[(\d*)C', 'move_forwards'),
+            (r'^\[(\d*)D', 'move_left'),
+            (r'^\[(\d+)d', 'change_line'),
+            (r'^\[2J', 'clear_screen_and_home_cursor'),
+            (r'^\[;?H', 'move_to_home'),
+            (r'^\[(\d+);(\d+);(\d+);(\d+)z', 'erase_rectangular_area'),
+            (r'^\[K', 'clear_line'),
+            (r'^\(B', 'set_united_states_g0_characters'),
+            (r'^\(0', 'set_g0_special_characters'),
+            # (r'^[^a-zA-Z=>]*[a-zA-Z=>]', 'unrecognized_escape_sequence'),
         )
 
         for regex, action in actions:
-            match = re.match(regex, self.read)
+            if regex not in self.compiled_regexes:
+                self.compiled_regexes[regex] = re.compile(regex)
+            cregex = self.compiled_regexes[regex]
+            match = re.match(cregex, self.read)
             if match:
                 self.read = self.read[len(match.group(0)):]
                 getattr(self, action)(match)
@@ -133,8 +137,7 @@ class Parser(object):
 
     def unrecognized_escape_sequence(self, match):
         # unrecognized escape sequence
-        # print('Unrecognized sequence: ESC' + match.group(0)[1:])
-        pass
+        print('Unrecognized sequence: ESC' + match.group(0)[1:])
 
 
     def set_attributes(self, match):

@@ -315,6 +315,12 @@ class Pony(Symbol):
     fgcolour = YELLOW
 
 
+class BlackUnicorn(Symbol):
+    tile = 'black unicorn'
+    letter = 'u'
+    fgcolour = BLACK
+
+
 class KeystoneKop(Symbol):
     tile = 'Keystone Kop'
     letter = 'K'
