@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import telnetlib
 import pygame
+from pygame.locals import *
 import re
 import os
 
 from constants import *
 from parser import Parser
+from draw import SCREEN, draw_surface
+
 
 connection = telnetlib.Telnet(HOST)
 
@@ -23,13 +26,18 @@ running = True
 while running:
     event = pygame.event.poll()
     if event.type == pygame.QUIT:
-        quit()
+        running = False
 
     elif event.type == pygame.KEYDOWN:
         # if event.key == pygame.K_ESCAPE:
         #     running = False
 
         connection.write(str(event.unicode))
+
+    elif event.type == VIDEORESIZE:
+        pass
+        # SCREEN = pygame.display.set_mode(event.dict['size'], HWSURFACE|RESIZABLE)
+        # viewportWidth, viewportHeight = event.dict['size']
 
     parser.read = connection.read_until('LOLZ', timeout=0.1)
     
@@ -38,6 +46,15 @@ while running:
         parser.grid.post_process()
         parser.grid.draw()
         parser.grid.after_draw()
+
+        if ENABLE_SCALING:
+            surface = pygame.transform.scale(
+                draw_surface,
+                (viewportWidth, viewportHeight),
+            )
+        else:
+            surface = draw_surface
+        SCREEN.blit(surface, (0, 0))
         pygame.display.update()
 
 

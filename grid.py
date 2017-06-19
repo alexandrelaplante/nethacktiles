@@ -19,13 +19,17 @@ class Cell(object):
             or self.mode == 'normal' and self.letter in '-|'
         )
 
+    @property
+    def is_connecting(self):
+        return self.is_wall or (self.letter == '+' and self.attr['fgcolour'] == YELLOW)
+
     def pp_top_left_corner(self, neighbours):
         is_corner = (
            self.is_wall
-           and not neighbours['up'].is_wall
-           and not neighbours['left'].is_wall
-           and neighbours['down'].is_wall
-           and neighbours['right'].is_wall
+           and not neighbours['up'].is_connecting
+           and not neighbours['left'].is_connecting
+           and neighbours['down'].is_connecting
+           and neighbours['right'].is_connecting
         )
         if is_corner:
             self.mode = 'special'
@@ -34,10 +38,10 @@ class Cell(object):
     def pp_top_right_corner(self, neighbours):
         is_corner = (
            self.is_wall
-           and not neighbours['up'].is_wall
-           and neighbours['left'].is_wall
-           and neighbours['down'].is_wall
-           and not neighbours['right'].is_wall
+           and not neighbours['up'].is_connecting
+           and neighbours['left'].is_connecting
+           and neighbours['down'].is_connecting
+           and not neighbours['right'].is_connecting
         )
         if is_corner:
             self.mode = 'special'
@@ -46,10 +50,10 @@ class Cell(object):
     def pp_bottom_right_corner(self, neighbours):
         is_corner = (
            self.is_wall
-           and neighbours['up'].is_wall
-           and neighbours['left'].is_wall
-           and not neighbours['down'].is_wall
-           and not neighbours['right'].is_wall
+           and neighbours['up'].is_connecting
+           and neighbours['left'].is_connecting
+           and not neighbours['down'].is_connecting
+           and not neighbours['right'].is_connecting
         )
         if is_corner:
             self.mode = 'special'
@@ -58,10 +62,10 @@ class Cell(object):
     def pp_bottom_left_corner(self, neighbours):
         is_corner = (
            self.is_wall
-           and neighbours['up'].is_wall
-           and not neighbours['left'].is_wall
-           and not neighbours['down'].is_wall
-           and neighbours['right'].is_wall
+           and neighbours['up'].is_connecting
+           and not neighbours['left'].is_connecting
+           and not neighbours['down'].is_connecting
+           and neighbours['right'].is_connecting
         )
         if is_corner:
             self.mode = 'special'
@@ -70,10 +74,10 @@ class Cell(object):
     def pp_top_junction(self, neighbours):
         is_junction = (
            self.is_wall
-           and not neighbours['up'].is_wall
-           and neighbours['left'].is_wall
-           and neighbours['down'].is_wall
-           and neighbours['right'].is_wall
+           and not neighbours['up'].is_connecting
+           and neighbours['left'].is_connecting
+           and neighbours['down'].is_connecting
+           and neighbours['right'].is_connecting
         )
         if is_junction:
             self.mode = 'special'
@@ -82,10 +86,10 @@ class Cell(object):
     def pp_right_junction(self, neighbours):
         is_junction = (
            self.is_wall
-           and neighbours['up'].is_wall
-           and neighbours['left'].is_wall
-           and neighbours['down'].is_wall
-           and not neighbours['right'].is_wall
+           and neighbours['up'].is_connecting
+           and neighbours['left'].is_connecting
+           and neighbours['down'].is_connecting
+           and not neighbours['right'].is_connecting
         )
         if is_junction:
             self.mode = 'special'
@@ -94,10 +98,10 @@ class Cell(object):
     def pp_bottom_junction(self, neighbours):
         is_junction = (
            self.is_wall
-           and neighbours['up'].is_wall
-           and neighbours['left'].is_wall
-           and not neighbours['down'].is_wall
-           and neighbours['right'].is_wall
+           and neighbours['up'].is_connecting
+           and neighbours['left'].is_connecting
+           and not neighbours['down'].is_connecting
+           and neighbours['right'].is_connecting
         )
         if is_junction:
             self.mode = 'special'
@@ -106,10 +110,10 @@ class Cell(object):
     def pp_left_junction(self, neighbours):
         is_junction = (
            self.is_wall
-           and neighbours['up'].is_wall
-           and not neighbours['left'].is_wall
-           and neighbours['down'].is_wall
-           and neighbours['right'].is_wall
+           and neighbours['up'].is_connecting
+           and not neighbours['left'].is_connecting
+           and neighbours['down'].is_connecting
+           and neighbours['right'].is_connecting
         )
         if is_junction:
             self.mode = 'special'
@@ -118,10 +122,10 @@ class Cell(object):
     def pp_total_junction(self, neighbours):
         is_junction = (
            self.is_wall
-           and neighbours['up'].is_wall
-           and neighbours['left'].is_wall
-           and neighbours['down'].is_wall
-           and neighbours['right'].is_wall
+           and neighbours['up'].is_connecting
+           and neighbours['left'].is_connecting
+           and neighbours['down'].is_connecting
+           and neighbours['right'].is_connecting
         )
         if is_junction:
             self.mode = 'special'
@@ -168,8 +172,8 @@ class Grid(object):
 
     def clear(self):
         # for performance we just empty the screen and say nothing is dirty
-        from draw import SCREEN
-        SCREEN.fill(defaultBG)
+        from draw import draw_surface
+        draw_surface.fill(defaultBG)
         self.__init__()
         for cell, _, _ in self.cells:
             cell._dirty = False
@@ -246,12 +250,17 @@ class Grid(object):
     def after_draw(self):
         # Draw a border around text boxes
         import pygame
-        from draw import SCREEN
+        from draw import draw_surface
         if self.after_y and self.after_y > 1:
             x = (self.after_x + 1) * W
             y = (self.after_y - 1) * H
             max_x = max((x for cell, x, y in self.cells if cell.letter and cell.letter != ' '))
             max_x = (max_x) * W
-            pygame.draw.rect(SCREEN, defaultFG, (x, 0, max_x-x, y+H), 1)
+            pygame.draw.rect(
+                draw_surface,
+                defaultFG,
+                (x, 0, max_x-x, y+H),
+                1,
+            )
         self.after_x = None
         self.after_y = None

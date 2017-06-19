@@ -3,17 +3,24 @@ from collections import defaultdict
 
 import tileset
 from constants import *
+from pygame.locals import *
 from symbols import symbols    
 
 
 pygame.init()
 
 tileset_image = pygame.image.load(TILESET)
-SCREEN = pygame.display.set_mode((viewportWidth, viewportHeight), 0, 32)
-font = pygame.font.Font(FONT, H-4)
+
+SCREEN = pygame.display.set_mode(
+    (viewportWidth, viewportHeight),
+    DOUBLEBUF|HWSURFACE|RESIZABLE|FULLSCREEN,
+    0
+)
+draw_surface = pygame.Surface(size=(ttyW * W, ttyH * H))
+font = pygame.font.Font(FONT, H)
 fontb = pygame.font.SysFont(FONTB, H+7)
 
-SCREEN.fill(defaultBG)
+draw_surface.fill(defaultBG)
 pygame.display.update()
 
 
@@ -67,33 +74,38 @@ def draw_cell(cell, grid_x, grid_y):
 
     # if we found a tile, draw it
     if draw and symbol:
-        SCREEN.blit(
+        draw_surface.blit(
             source=tileset_image,
             dest=(x, y, W, H),
             area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
         )
     else:
-        pygame.draw.rect(SCREEN, bgcolour, (x, y, W, H), 0)  # background
-        if l != ' ':
+        pygame.draw.rect(draw_surface, bgcolour, (x, y, W, H), 0)  # background
+        if l and l != ' ':
             # if mode == 'special':
             #     print('missing a special character: ', l)
-            #     pygame.draw.rect(SCREEN, RED, (x, y, W, H), 2)
+            #     pygame.draw.rect(draw_surface, RED, (x, y, W, H), 2)
+
+            current_font = fontb if attr['weight'] == 'bold' else font
+            xoffset = 0
+
             if draw:  # show background behind letters
                 sheetX, sheetY = tileset.get_tile('empty')
-                SCREEN.blit(
+                draw_surface.blit(
                     source=tileset_image,
                     dest=(x, y, W, H),
                     area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
                 )
-            current_font = fontb if attr['weight'] == 'bold' else font
-            SCREEN.blit(
+                # attempting to center the letter in the tile
+                xoffset = current_font.metrics(l)[0][0] / 2
+
+            draw_surface.blit(
                 source=current_font.render(l, True, fgcolour),
-                dest=(x, y, W, H),
-                # special_flags=pygame.BLEND_ADD,
+                dest=(x+xoffset, y-4, W, H),
             )
 
     if frame:
-        pygame.draw.rect(SCREEN, defaultFG, (x, y, W, H), 1)
+        pygame.draw.rect(draw_surface, defaultFG, (x, y, W, H), 1)
 
     # if attr['weight'] == 'bold':
-    #    pygame.draw.rect(SCREEN, (255,255,255), (x, y, W, H), 2)
+    #    pygame.draw.rect(draw_surface, (255,255,255), (x, y, W, H), 2)
