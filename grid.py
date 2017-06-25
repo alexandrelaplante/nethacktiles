@@ -10,6 +10,7 @@ class Cell(object):
     frame = False
     draw = True
     neighbours = None
+    tile = None
     _dirty = True
 
     @property
@@ -151,11 +152,12 @@ class Grid(object):
     def __init__(self):
         self._cells = self.initial_cells()
 
-    def set_cell(self, letter, x, y, mode, attr):
+    def set_cell(self, letter, x, y, mode, attr, tile=None):
         cell = self._cells[y][x]
         cell.letter = letter
         cell.mode = mode
         cell.attr = attr.copy()
+        cell.tile = tile
         cell.draw = True
         cell._dirty = True
 

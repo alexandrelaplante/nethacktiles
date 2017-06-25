@@ -16,14 +16,14 @@ WHITE = (255, 255, 255)
 defaultBG = BLACK
 defaultFG = WHITE
 
-tileH, tileW = 25, 15  # tile size in sheet
-# tileH, tileW = 20, 20 # tile size in sheet
-# tileH, tileW = 48, 48  # tile size in sheet
-H, W = tileH, tileW  # tile size
+tileW, tileH = 15, 25  # tile size in sheet
+# tileW, tileH = 32, 32 # tile size in sheet
+# tileW, tileH = 22, 32 # tile size in sheet
+W, H = tileW, tileH  # tile size
 
 TILESET = 'geoduck25x15.bmp'
-# TILESET = 'default_tiles_20.png'
-# TILESET = 'absurd48-360.bmp'
+# TILESET = 'nevanda32x32.png'
+# TILESET = 'absurd22x32.png'
 FONT = 'fonts/DejaVuSansMono.ttf'
 # FONTB = 'fonts/DejaVuSansMono-Bold.ttf'
 FONTB = 'fonts/DejaVuSansMono.ttf'

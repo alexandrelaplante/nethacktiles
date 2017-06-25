@@ -28,3 +28,10 @@ def get_tile(name, offset=0):
     y = index // 40
 
     return x, y
+
+def get_tile_by_index(index):
+
+    x = index % 40
+    y = index // 40
+
+    return x, y

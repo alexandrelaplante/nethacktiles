@@ -8,6 +8,7 @@ class Parser(object):
     x, y = 1, 1  # there is no 0, 0
     mode = None
     attr = None
+    tile = None
     grid = Grid()
     compiled_regexes = {}
 
@@ -19,15 +20,12 @@ class Parser(object):
         # print(self.read)
         while self.read:
             if self.read[0] in ('','', '\r', '\n'):
-
                 found_match = self.parse_special()
-                if found_match:
-                    continue
-
-                self.read = self.read[1:]
-
+                if not found_match:
+                    # print ('NO MATCH: ', self.read[:6])
+                    self.read = self.read[1:]
             else:  # just a letter
-                self.grid.set_cell(self.read[0], self.x, self.y, self.mode, self.attr)
+                self.grid.set_cell(self.read[0], self.x, self.y, self.mode, self.attr, self.tile)
                 self.x += 1
                 self.read = self.read[1:]
 
@@ -40,9 +38,9 @@ class Parser(object):
         https://en.wikipedia.org/wiki/ANSI_escape_code
         """
         actions = (
-            ('\r', '_return'),
-            ('\n', 'new_line'),
-            ('', 'backspace'),
+            (r'^\r', '_return'),
+            (r'^\n', 'new_line'),
+            (r'^', 'backspace'),
             (r'^\[(\d*)(;\d+)?(;\d+)?m', 'set_attributes'),
             (r'^\[(\d+);(\d+)[Hf]', 'move_arbitrary_position'),
             (r'^\[(\d*)A', 'move_up'),
@@ -52,11 +50,14 @@ class Parser(object):
             (r'^\[(\d+)d', 'change_line'),
             (r'^\[2J', 'clear_screen_and_home_cursor'),
             (r'^\[;?H', 'move_to_home'),
-            (r'^\[(\d+);(\d+);(\d+);(\d+)z', 'erase_rectangular_area'),
+            (r'^\[1;0;(\d+);(\d+)z', 'vt_start_glyph'),
+            (r'^\[1;1z', 'vt_end_glyph'),
+            (r'^\[1;2;(\d+)z', 'vt_select_window'),
+            (r'^\[1;3z', 'vt_end_of_data'),
             (r'^\[K', 'clear_line'),
             (r'^\(B', 'set_united_states_g0_characters'),
             (r'^\(0', 'set_g0_special_characters'),
-            # (r'^[^a-zA-Z=>]*[a-zA-Z=>]', 'unrecognized_escape_sequence'),
+            (r'^[^a-zA-Z=>]*[a-zA-Z=>]', 'unrecognized_escape_sequence'),
         )
 
         for regex, action in actions:
@@ -112,12 +113,17 @@ class Parser(object):
     def move_to_home(self, match):
         self.x, self.y = 1, 1
 
-    def erase_rectangular_area(self, match):
-        """erase rectangular area, dunno if this works can't find info on it"""
-        a, b, c, d = match.group(0), match.group(1), match.group(2), match.group(3)
-        for i in range(a, c + 1):
-            for j in range(b, d + 1):
-                self.grid.set_cell(' ', i, self.y, self.mode, defaultATTR)
+    def vt_start_glyph(self, match):
+        self.tile = (int(match.group(1)), int(match.group(2)))
+
+    def vt_end_glyph(self, match):
+        self.tile = None
+
+    def vt_select_window(self, match):
+        pass
+
+    def vt_end_of_data(self, match):
+        pass
 
     def clear_line(self, match):
         # Esc[K   Clear line from cursor right    EL0
@@ -137,7 +143,8 @@ class Parser(object):
 
     def unrecognized_escape_sequence(self, match):
         # unrecognized escape sequence
-        print('Unrecognized sequence: ESC' + match.group(0)[1:])
+        pass
+        # print('Unrecognized sequence: ESC' + match.group(0)[1:])
 
 
     def set_attributes(self, match):

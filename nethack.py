@@ -23,39 +23,42 @@ parser = Parser()
 
 
 running = True
-while running:
-    event = pygame.event.poll()
-    if event.type == pygame.QUIT:
-        running = False
+try:
+    while running:
+        event = pygame.event.poll()
+        if event.type == pygame.QUIT:
+            running = False
 
-    elif event.type == pygame.KEYDOWN:
-        # if event.key == pygame.K_ESCAPE:
-        #     running = False
+        elif event.type == pygame.KEYDOWN:
+            # if event.key == pygame.K_ESCAPE:
+            #     running = False
 
-        connection.write(str(event.unicode))
+            connection.write(str(event.unicode))
 
-    elif event.type == VIDEORESIZE:
-        pass
-        # SCREEN = pygame.display.set_mode(event.dict['size'], HWSURFACE|RESIZABLE)
-        # viewportWidth, viewportHeight = event.dict['size']
+        elif event.type == VIDEORESIZE:
+            pass
+            # SCREEN = pygame.display.set_mode(event.dict['size'], HWSURFACE|RESIZABLE)
+            # viewportWidth, viewportHeight = event.dict['size']
 
-    parser.read = connection.read_until('LOLZ', timeout=0.1)
-    
-    if parser.read:
-        parser.parse()
-        parser.grid.post_process()
-        parser.grid.draw()
-        parser.grid.after_draw()
+        parser.read = connection.read_until('LOLZ', timeout=0.1)
 
-        if ENABLE_SCALING:
-            surface = pygame.transform.scale(
-                draw_surface,
-                (viewportWidth, viewportHeight),
-            )
-        else:
-            surface = draw_surface
-        SCREEN.blit(surface, (0, 0))
-        pygame.display.update()
+        if parser.read:
+            parser.parse()
+            parser.grid.post_process()
+            parser.grid.draw()
+            parser.grid.after_draw()
+
+            if ENABLE_SCALING:
+                surface = pygame.transform.scale(
+                    draw_surface,
+                    (viewportWidth, viewportHeight),
+                )
+            else:
+                surface = draw_surface
+            SCREEN.blit(surface, (0, 0))
+            pygame.display.update()
+except:
+    pass
 
 
 # pr.disable()

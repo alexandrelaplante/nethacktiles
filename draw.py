@@ -13,7 +13,7 @@ tileset_image = pygame.image.load(TILESET)
 
 SCREEN = pygame.display.set_mode(
     (viewportWidth, viewportHeight),
-    DOUBLEBUF|HWSURFACE|RESIZABLE|FULLSCREEN,
+    DOUBLEBUF|HWSURFACE|RESIZABLE,
     0
 )
 draw_surface = pygame.Surface(size=(ttyW * W, ttyH * H))
@@ -65,47 +65,60 @@ def draw_cell(cell, grid_x, grid_y):
 
     sheetX, sheetY = 0, 0
 
-    symbol = get_symbol_from_cell(cell)
-    if symbol:
+    symbol = None
+    symbol2 = None
+
+    if cell.tile is not None:
+        tile1, tile2 = cell.tile
+        symbol = tileset.get_tile_by_index(tile1)
         sheetX, sheetY = symbol
+        if tile2:
+            pass
+            # symbol2 = tileset.get_tile_by_index(tile2)
+            # sheetX2, sheetY2 = symbol2
+    else:
+        symbol = get_symbol_from_cell(cell)
+        if symbol:
+            sheetX, sheetY = symbol
 
     # This is the area of the board where tiles are possible.
     draw = cell.draw and 1 < grid_y < 23
 
-    # if we found a tile, draw it
-    if draw and symbol:
+    def draw_tile(sheetX, sheetY):
         draw_surface.blit(
             source=tileset_image,
             dest=(x, y, W, H),
             area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
         )
+
+    def draw_background():
+        pygame.draw.rect(draw_surface, bgcolour, (x, y, W, H), 0)
+
+    # if we found a tile, draw it
+    if draw and symbol:
+        draw_tile(sheetX, sheetY)
+        # if symbol2:
+        #     draw_tile(sheetX, sheetY)
     else:
-        pygame.draw.rect(draw_surface, bgcolour, (x, y, W, H), 0)  # background
+
         if l and l != ' ':
-            # if mode == 'special':
-            #     print('missing a special character: ', l)
-            #     pygame.draw.rect(draw_surface, RED, (x, y, W, H), 2)
 
             current_font = fontb if attr['weight'] == 'bold' else font
             xoffset = 0
 
             if draw:  # show background behind letters
-                sheetX, sheetY = tileset.get_tile('empty')
-                draw_surface.blit(
-                    source=tileset_image,
-                    dest=(x, y, W, H),
-                    area=(sheetX*tileW, sheetY*tileH, tileW, tileH),
-                )
+                draw_tile(*tileset.get_tile('empty'))
                 # attempting to center the letter in the tile
                 xoffset = current_font.metrics(l)[0][0] / 2
+            else:
+                draw_background()
 
             draw_surface.blit(
                 source=current_font.render(l, True, fgcolour),
                 dest=(x+xoffset, y-4, W, H),
             )
+        else:
+            draw_background()
 
     if frame:
         pygame.draw.rect(draw_surface, defaultFG, (x, y, W, H), 1)
-
-    # if attr['weight'] == 'bold':
-    #    pygame.draw.rect(draw_surface, (255,255,255), (x, y, W, H), 2)
